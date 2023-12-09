@@ -1,6 +1,6 @@
 const wakuSetup = require('./wakuSetup');
 
-let rooms = {}; // Replace this with your database model in a real application
+let rooms = {};
 
 const RoomService = {
     /**

@@ -1,53 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { initializeWaku, sendClipboardData, listenToClipboardMessages } from './waku/renderer';
-import ContextMenu from './component/context-menu';
+import React, { useState } from 'react';
+import './App.css';
 import Header from './component/header';
 import Clipboard from './component/clipboard';
-import './App.css';
+import ContextMenu from './component/context-menu';
 
 function App() {
-  const [waku, setWaku] = useState(null);
-  const [clipboardText, setClipboardText] = useState('');
   const [contextMenu, setContextMenu] = useState(null);
-  const contentTopic = 'uniboardClipboardSync';
+  const [clipboardData, setClipboardData] = useState([]);
 
-  useEffect(() => {
-    async function setupWaku() {
-      try {
-        const wakuInstance = await initializeWaku();
-        setWaku(wakuInstance);
-        listenToClipboardMessages(wakuInstance, contentTopic, setClipboardText);
-      } catch (error) {
-        console.error('Error setting up Waku:', error);
-      }
-    }
-
-    setupWaku();
-  }, []);
-
-  const handleSyncClipboard = async () => {
-    try {
-      const clipboardData = 'Sample clipboard data'; // Replace with actual clipboard data
-      await sendClipboardData(waku, clipboardData, contentTopic);
-    } catch (error) {
-      console.error('Error sending clipboard data:', error);
-    }
-  };
-
-  // Right-click handler to show context menu
   const handleContextMenu = (event) => {
     event.preventDefault();
-    setContextMenu({
-      position: { x: event.pageX, y: event.pageY },
-      items: [
-        { label: 'Copy as PNG', action: () => console.log('Copy as PNG') },
-        { label: 'Copy as SVG', action: () => console.log('Copy as SVG') },
-        // Add more items as needed
-      ],
-    });
+    setContextMenu({ x: event.pageX, y: event.pageY });
   };
 
-  // Click handler to hide context menu
   const handleClick = () => {
     setContextMenu(null);
   };
@@ -55,15 +20,14 @@ function App() {
   return (
     <div className="App min-h-screen w-full grid place-content-center" onClick={handleClick} onContextMenu={handleContextMenu}>
       <Header />
-      {/* Render the context menu when it is set */}
       {contextMenu && (
-        <ContextMenu
-          items={contextMenu.items}
-          position={contextMenu.position}
+        <ContextMenu 
+          position={contextMenu}
+          clipboardData={clipboardData}
         />
       )}
       <h2 className='text-white text-xl mt-20'>Welcome to <span className='text-purple-300'>Uniboard</span></h2>
-      <Clipboard />
+      <Clipboard clipboardData={clipboardData} setClipboardData={setClipboardData} />
     </div>
   );
 }

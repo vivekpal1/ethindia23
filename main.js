@@ -1,4 +1,5 @@
 const { app, globalShortcut, BrowserWindow } = require('electron');
+require('source-map-support').install();
 
 let win;
 function createWindow() {

@@ -16,6 +16,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
+    "source-map-support": "^0.5.21",
     "typescript": "^5.3.3",
     "viem": "^1.19.11",
     "wagmi": "^1.4.10",
@@ -26,7 +27,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "electron-start": "electron ."
+    "electron-start": "electron .",
+    "electron-trace": "electron --trace-warnings ."
   },
   "eslintConfig": {
     "extends": [

@@ -1,89 +1,43 @@
-const wakuUtils = require('./waku/wakuUtils');
-const roomService = require('./roomService');
+import React, { useState, useEffect } from 'react';
+import { useWaku, useContentPair, useLightPush, useFilterMessages } from '@waku/react';
+import { ChatMessage } from './chat_message';
+import ChatList from './ChatList';
+import MessageInput from './MessageInput';
 
-const RoomController = {
-    /**
-     * Creates a new room.
-     * @param {string} roomName - The name of the room to be created.
-     * @returns {Promise<string>} - The topic of the created room.
-     */
-    createRoom: async (roomName) => {
-        try {
-            // Generate a unique topic for the room
-            const roomTopic = `uniboardRoom:${roomName}`;
-            
-            // Optionally, save room details to a database
-            await roomService.saveRoomDetails(roomName, roomTopic);
+function RoomController({ roomTopic, userNick }) {
+    const { node } = useWaku<LightNode>();
+    const { encoder, decoder } = useContentPair({ contentTopic: roomTopic });
+    const { push: onPush } = useLightPush({ node, encoder });
+    const { messages: filterMessages } = useFilterMessages({ node, decoder });
 
-            // Perform any additional setup for the room, if needed
-            // ...
+    const [chatMessages, setChatMessages] = useState([]);
 
-            return roomTopic;
-        } catch (error) {
-            console.error('Error creating room:', error);
-            throw error;
-        }
-    },
+    useEffect(() => {
+        const newMessages = filterMessages.map(wakuMessage => ChatMessage.decode(wakuMessage.payload));
+        setChatMessages(prevMessages => [...prevMessages, ...newMessages]);
+    }, [filterMessages]);
 
-    /**
-     * Adds a user to a room.
-     * @param {string} userId - The ID of the user.
-     * @param {string} roomTopic - The topic of the room to join.
-     */
-    addUserToRoom: async (userId, roomTopic) => {
-        try {
-            // Add user to room logic
-            // This could involve updating room's user list in the database
-            await roomService.addUserToRoom(userId, roomTopic);
+    const onSend = async (text) => {
+        if (!onPush || !text) return;
 
-            // Perform any additional setup for adding the user to the room
-            // ...
+        const timestamp = Date.now();
+        const chatMessage = ChatMessage.create({
+            timestamp: timestamp,
+            sender: userNick,
+            message: text
+        });
+        const payload = ChatMessage.encode(chatMessage).finish();
 
-        } catch (error) {
-            console.error('Error adding user to room:', error);
-            throw error;
-        }
-    },
+        await onPush({ payload, timestamp });
+        setChatMessages(prevMessages => [...prevMessages, chatMessage]);
+    };
 
-    /**
-     * Removes a user from a room.
-     * @param {string} userId - The ID of the user.
-     * @param {string} roomTopic - The topic of the room to leave.
-     */
-    removeUserFromRoom: async (userId, roomTopic) => {
-        try {
-            // Remove user from room logic
-            // This could involve updating room's user list in the database
-            await roomService.removeUserFromRoom(userId, roomTopic);
+    return (
+        <div className="room-controller">
+            <ChatList messages={chatMessages} />
+            <MessageInput onSend={onSend} />
+        </div>
+    );
+}
 
-            // Perform any additional teardown for removing the user from the room
-            // ...
-
-        } catch (error) {
-            console.error('Error removing user from room:', error);
-            throw error;
-        }
-    },
-
-    /**
-     * Retrieves room details.
-     * @param {string} roomTopic - The topic of the room.
-     * @returns {Promise<Object>} - The details of the room.
-     */
-    getRoomDetails: async (roomTopic) => {
-        try {
-            // Retrieve room details logic
-            // This could involve fetching details from the database
-            const roomDetails = await roomService.getRoomDetails(roomTopic);
-
-            return roomDetails;
-        } catch (error) {
-            console.error('Error getting room details:', error);
-            throw error;
-        }
-    }
-
-    // Additional room-related functionalities can be added here
-};
-
-module.exports = RoomController;
+export default RoomController;

@@ -1,5 +1,5 @@
 const { Waku, WakuMessage } = require('js-waku');
-const { decrypt, encrypt } = require('../encryption/encryptDecrypt'); // Assuming you have encryption utilities
+const { decrypt, encrypt } = require('../encryption/encryptDecrypt');
 
 let waku;
 

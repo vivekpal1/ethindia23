@@ -1,23 +1,38 @@
-const rooms = new Map(); // In-memory storage for rooms
+const rooms = new Map();
 
 const RoomService = {
     /**
-     * Saves room details.
+     * Creates a new room.
      * @param {string} roomName - Name of the room.
      * @param {string} roomTopic - Topic associated with the room in Waku.
      */
-    saveRoomDetails: (roomName, roomTopic) => {
+    createRoom: (roomName, roomTopic) => {
         if (rooms.has(roomTopic)) {
-            throw new Error('Room already exists.');
+            throw new Error('Room already exists with this topic.');
         }
 
         const newRoom = {
             name: roomName,
             topic: roomTopic,
-            users: []
+            messages: [],
+            users: new Set()
         };
 
         rooms.set(roomTopic, newRoom);
+    },
+
+    /**
+     * Adds a message to a room.
+     * @param {string} roomTopic - Topic of the room.
+     * @param {object} message - The message object to add.
+     */
+    addMessageToRoom: (roomTopic, message) => {
+        const room = rooms.get(roomTopic);
+        if (!room) {
+            throw new Error('Room does not exist.');
+        }
+
+        room.messages.push(message);
     },
 
     /**
@@ -31,11 +46,7 @@ const RoomService = {
             throw new Error('Room does not exist.');
         }
 
-        if (room.users.includes(userId)) {
-            throw new Error('User already in the room.');
-        }
-
-        room.users.push(userId);
+        room.users.add(userId);
     },
 
     /**
@@ -49,7 +60,7 @@ const RoomService = {
             throw new Error('Room does not exist.');
         }
 
-        room.users = room.users.filter(user => user !== userId);
+        room.users.delete(userId);
     },
 
     /**
@@ -63,10 +74,16 @@ const RoomService = {
             throw new Error('Room does not exist.');
         }
 
-        return room;
+        return { ...room, users: Array.from(room.users) }; // Convert Set to Array for user list
     },
 
-    // Additional room management functions can be added here
+    /**
+     * Retrieves all rooms.
+     * @returns {Array} - An array of all room details.
+     */
+    getAllRooms: () => {
+        return Array.from(rooms.values());
+    }
 };
 
 module.exports = RoomService;
