@@ -1,5 +1,4 @@
 const { app, globalShortcut, BrowserWindow } = require('electron');
-const { app, globalShortcut, BrowserWindow } = require('electron');
 
 let win;
 function createWindow() {

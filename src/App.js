@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { initializeWaku, sendClipboardData, listenToClipboardMessages } from './waku/renderer';
-import ContextMenu from './components/ContextMenu'; // Import the ContextMenu component
+import ContextMenu from './component/context-menu';
 import Header from './component/header';
+import Clipboard from './component/clipboard';
 import './App.css';
 
 function App() {
-  const { node, error, isLoading } = useWaku();
   const [waku, setWaku] = useState(null);
   const [clipboardText, setClipboardText] = useState('');
   const [contextMenu, setContextMenu] = useState(null);
@@ -55,9 +55,6 @@ function App() {
   return (
     <div className="App min-h-screen w-full grid place-content-center" onClick={handleClick} onContextMenu={handleContextMenu}>
       <Header />
-      <h2 className='text-white font-light text-xl'>Welcome to <span className='text-purple-300'>Uniboard</span></h2>
-      <button onClick={handleSyncClipboard}>Sync Clipboard</button>
-      <p>Clipboard Content: {clipboardText}</p>
       {/* Render the context menu when it is set */}
       {contextMenu && (
         <ContextMenu
