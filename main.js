@@ -1,4 +1,4 @@
-const { app, globalShortcut, BrowserWindow, clipboard, ipcMain } = require('electron');
+const { app, globalShortcut, BrowserWindow } = require('electron');
 
 let win;
 function createWindow() {
@@ -24,15 +24,7 @@ function createWindow() {
 //   }
 // }, 1000);
 
-app.whenReady().then(() => {
-  createWindow();
-
-  // globalShortcut.register('CommandOrControl+C', () => {
-  //   console.log('CommandOrControl+C is pressed');
-  //   const copiedText = clipboard.readText();
-  //   console.log("copied text: ", copiedText);
-  // });
-});
+app.whenReady().then(createWindow);
 
 app.on('will-quit', () => {
   // Unregister all shortcuts.
