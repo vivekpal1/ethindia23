@@ -4,29 +4,17 @@ import { useWaku } from '@waku/react';
 import { createEncoder, createDecoder } from "@waku/sdk";
 import protobuf from 'protobufjs';
 import Header from './component/header';
+import Clipboard from './component/clipboard';
 import { useEffect, useState } from 'react';
-const { clipboard } = require('electron');
 
 function App() {
   const { node, error, isLoading } = useWaku();
-  const [clipboardText, setClipboardText] = useState('');
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const text = clipboard.readText();
-      if (text !== clipboardText) {
-          setClipboardText(text);
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [clipboardText]);
 
   return (
     <div className="App min-h-screen w-full grid place-content-center">
       <Header />
-      <h2 className='text-white font-light text-xl'>Welcome to <span className='text-purple-300'>Uniboard</span></h2>
-      <p>{clipboardText}</p>
+      <h2 className='text-white text-xl mt-20'>Welcome to <span className='text-purple-300'>Uniboard</span></h2>
+      <Clipboard />
     </div>
   );
 }
